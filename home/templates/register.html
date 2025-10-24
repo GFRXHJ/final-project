@@ -1,0 +1,176 @@
+{% extends 'base.html' %}
+
+{% block title %}Register - N's Store{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-7">
+        <div class="card shadow">
+            <div class="card-body p-5">
+                <h3 class="card-title text-center mb-4">
+                    <i class="bi bi-person-plus"></i> Create Account
+                </h3>
+                
+                <div id="error-alert" class="alert alert-danger d-none"></div>
+                <div id="success-alert" class="alert alert-success d-none"></div>
+                
+                <form id="register-form">
+                    <div class="row">
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">First Name *</label>
+                            <input type="text" class="form-control" id="first_name" required>
+                        </div>
+                        <div class="col-md-6 mb-3">
+                            <label class="form-label">Last Name *</label>
+                            <input type="text" class="form-control" id="last_name" required>
+                        </div>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Email *</label>
+                        <input type="email" class="form-control" id="email" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="phone" placeholder="+1234567890">
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Security Question *</label>
+                        <select class="form-control" id="security_question" required>
+                            <option value="">Choose a question...</option>
+                            <option value="pet">What is your pet name?</option>
+                            <option value="city">What city were you born in?</option>
+                            <option value="school">What is your first school name?</option>
+                            <option value="mother">What is your mother's maiden name?</option>
+                            <option value="car">What was your first car?</option>
+                        </select>
+                        <small class="text-muted">This will be used for password recovery</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Security Answer *</label>
+                        <input type="text" class="form-control" id="security_answer" required>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Password *</label>
+                        <input type="password" class="form-control" id="password" required minlength="6">
+                        <small class="text-muted">At least 6 characters</small>
+                    </div>
+                    
+                    <div class="mb-3">
+                        <label class="form-label">Confirm Password *</label>
+                        <input type="password" class="form-control" id="password2" required minlength="6">
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100" id="register-btn">
+                        <span id="btn-text">Register</span>
+                        <span id="btn-spinner" class="spinner-border spinner-border-sm d-none"></span>
+                    </button>
+                </form>
+                
+                <hr>
+                
+                <p class="text-center mb-0">
+                    Already have an account? <a href="{% url 'login' %}">Login here</a>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+document.getElementById('register-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        first_name: document.getElementById('first_name').value,
+        last_name: document.getElementById('last_name').value,
+        email: document.getElementById('email').value,
+        phone: document.getElementById('phone').value,
+        security_question: document.getElementById('security_question').value,
+        security_answer: document.getElementById('security_answer').value,
+        password: document.getElementById('password').value,
+        password2: document.getElementById('password2').value
+    };
+    
+    const errorAlert = document.getElementById('error-alert');
+    const successAlert = document.getElementById('success-alert');
+    const registerBtn = document.getElementById('register-btn');
+    const btnText = document.getElementById('btn-text');
+    const btnSpinner = document.getElementById('btn-spinner');
+    
+    // Hide alerts
+    errorAlert.classList.add('d-none');
+    successAlert.classList.add('d-none');
+    
+    // Show loading
+    registerBtn.disabled = true;
+    btnText.classList.add('d-none');
+    btnSpinner.classList.remove('d-none');
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/register/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            successAlert.textContent = 'Registration successful! Redirecting to login...';
+            successAlert.classList.remove('d-none');
+            
+            // Redirect after 2 seconds
+            setTimeout(() => {
+                window.location.href = "{% url 'login' %}";
+            }, 2000);
+        } else {
+            // Show errors
+            let errorMsg = '';
+            for (const [field, errors] of Object.entries(data)) {
+                if (Array.isArray(errors)) {
+                    errorMsg += errors.join(', ') + ' ';
+                } else {
+                    errorMsg += errors + ' ';
+                }
+            }
+            errorAlert.textContent = errorMsg || 'Registration failed. Please try again.';
+            errorAlert.classList.remove('d-none');
+            
+            // Reset button
+            registerBtn.disabled = false;
+            btnText.classList.remove('d-none');
+            btnSpinner.classList.add('d-none');
+        }
+    } catch (error) {
+        errorAlert.textContent = 'An error occurred. Please try again.';
+        errorAlert.classList.remove('d-none');
+        
+        // Reset button
+        registerBtn.disabled = false;
+        btnText.classList.remove('d-none');
+        btnSpinner.classList.add('d-none');
+    }
+});
+
+// Password match validation
+document.getElementById('password2').addEventListener('input', function() {
+    const password = document.getElementById('password').value;
+    const password2 = this.value;
+    
+    if (password2 && password !== password2) {
+        this.setCustomValidity('Passwords do not match');
+    } else {
+        this.setCustomValidity('');
+    }
+});
+</script>
+{% endblock %}

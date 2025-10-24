@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+{% load static %}
+{% block title %}N'Store - Project Docs{% endblock%}
+{% block content %}
+        <div class="row mb-4">
+            <div class="col-12">
+                <div class="new-color-hero text-white p-5 rounded">
+                    <h1>Docker, Git, Django, Rest-Framework, Console</h1>
+                    <p class="lead">Guide to run my code and API.</p>
+                    <p class="lead">For API: use <a style="color: #000;" href="http://127.0.0.1:8000/swagger" target="_blank">http://127.0.0.1:8000/swagger</a><br>
+                    For Django Admin: <a style="color: #000;" href="http://127.0.0.1:8000/admin" target="_blank">http://127.0.0.1:8000/admin</a></p>
+                    <hr>
+                    📋 Overview <br>
+                    N's Store API is a complete Django REST Framework application with user authentication, profile management, and password recovery features.
+                    <h3>Features</h3>
+                    <ul>
+                        <li>JWT Token Authentication</li>
+                        <li>Email-based User System</li>
+                        <li>Profile Management</li>
+                        <li>Password Recovery with Security Questions</li>
+                        <li>Swagger API Documentation</li>
+                        <li>Docker Support</li>
+                    </ul>
+
+                    <h3>Tech Stack</h3>
+                    <ul>
+                        <li>Django 4.2</li>
+                        <li>Django REST Framework</li>
+                        <li>SimpleJWT for authentication</li>
+                        <li>drf-yasg for API documentation</li>
+                        <li>Bootstrap 5 for frontend</li>
+                        <li>SQLite/PostgreSQL database</li>
+                    </ul>
+                    <hr>
+                    <p class="lead">
+                    <h3>📁 Project Structure</h3>
+                        <pre><code>
+    your_project/
+    ├── manage.py
+    ├── requirements.txt
+    ├── Dockerfile
+    ├── docker-compose.yml
+    ├── .dockerignore
+    ├── db.sqlite3
+    ├── media/
+    ├── static/
+    ├── templates/
+    │   ├── base.html
+    │   ├── home.html
+    │   ├── login.html
+    │   ├── register.html
+    │   ├── profile.html
+    │   ├── forgot_password.html
+    │   └── docs.html
+    ├── user/
+    │   ├── __init__.py
+    │   ├── admin.py
+    │   ├── models.py
+    │   ├── serializers.py
+    │   ├── views.py
+    │   ├── template_views.py
+    │   ├── urls.py
+    │   └── migrations/
+    └── your_project/
+        ├── __init__.py
+        ├── settings.py
+        ├── urls.py
+        └── wsgi.py
+                    </code></pre>
+                    <hr>
+                    <h3>⚡ Requirements</h3>
+                    <pre><code>
+    asgiref==3.10.0
+    Django==5.2.7
+    django-cors-headers==4.9.0
+    djangorestframework==3.16.1
+    djangorestframework_simplejwt==5.5.1
+    drf-yasg==1.21.11
+    inflection==0.5.1
+    packaging==25.0
+    pillow==12.0.0
+    PyJWT==2.10.1
+    pytz==2025.2
+    PyYAML==6.0.3
+    sqlparse==0.5.3
+    tzdata==2025.2
+    uritemplate==4.2.0
+                    </code></pre>
+                </div>
+            </div>
+        </div>
+{% endblock content %}

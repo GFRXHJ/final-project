@@ -1,0 +1,269 @@
+{% extends 'base.html' %}
+
+{% block title %}Profile - N's Store{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card shadow">
+            <div class="card-body text-center">
+                <i class="bi bi-person-circle" style="font-size: 6rem; color: #6c757d;"></i>
+                <h4 class="mt-3" id="profile-name">Loading...</h4>
+                <p class="text-muted" id="profile-email">Loading...</p>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal">
+                    <i class="bi bi-pencil"></i> Edit Profile
+                </button>
+                <button class="btn btn-warning btn-sm mt-2" data-bs-toggle="modal" data-bs-target="#passwordModal">
+                    <i class="bi bi-key"></i> Change Password
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-body">
+                <h5 class="card-title">Profile Information</h5>
+                <hr>
+                <div class="row mb-3">
+                    <div class="col-md-6">
+                        <strong>First Name:</strong>
+                        <p id="info-first-name">-</p>
+                    </div>
+                    <div class="col-md-6">
+                        <strong>Last Name:</strong>
+                        <p id="info-last-name">-</p>
+                    </div>
+                </div>
+                <div class="mb-3">
+                    <strong>Email:</strong>
+                    <p id="info-email">-</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Phone:</strong>
+                    <p id="info-phone">-</p>
+                </div>
+                <div class="mb-3">
+                    <strong>Address:</strong>
+                    <p id="info-address">-</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Edit Profile Modal -->
+<div class="modal fade" id="editModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Edit Profile</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="edit-error" class="alert alert-danger d-none"></div>
+                <div id="edit-success" class="alert alert-success d-none"></div>
+                
+                <form id="edit-form">
+                    <div class="mb-3">
+                        <label class="form-label">First Name</label>
+                        <input type="text" class="form-control" id="edit-first-name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Last Name</label>
+                        <input type="text" class="form-control" id="edit-last-name">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Phone</label>
+                        <input type="tel" class="form-control" id="edit-phone">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Address</label>
+                        <textarea class="form-control" id="edit-address" rows="2"></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Change Password Modal -->
+<div class="modal fade" id="passwordModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Change Password</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <div id="password-error" class="alert alert-danger d-none"></div>
+                <div id="password-success" class="alert alert-success d-none"></div>
+                
+                <form id="password-form">
+                    <div class="mb-3">
+                        <label class="form-label">Old Password</label>
+                        <input type="password" class="form-control" id="old-password" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="new-password" required minlength="6">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="new-password2" required minlength="6">
+                    </div>
+                    <button type="submit" class="btn btn-warning">Change Password</button>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+const token = localStorage.getItem('access_token');
+
+// Redirect if not logged in
+if (!token) {
+    window.location.href = "{% url 'login' %}";
+}
+
+// Load profile on page load
+document.addEventListener('DOMContentLoaded', loadProfile);
+
+async function loadProfile() {
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/profile/', {
+            headers: {
+                'Authorization': `Bearer ${token}`
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            
+            // Update display
+            document.getElementById('profile-name').textContent = `${data.first_name} ${data.last_name}`;
+            document.getElementById('profile-email').textContent = data.email;
+            document.getElementById('info-first-name').textContent = data.first_name || '-';
+            document.getElementById('info-last-name').textContent = data.last_name || '-';
+            document.getElementById('info-email').textContent = data.email || '-';
+            document.getElementById('info-phone').textContent = data.phone || '-';
+            document.getElementById('info-address').textContent = data.address || '-';
+            
+            // Populate edit form
+            document.getElementById('edit-first-name').value = data.first_name || '';
+            document.getElementById('edit-last-name').value = data.last_name || '';
+            document.getElementById('edit-phone').value = data.phone || '';
+            document.getElementById('edit-address').value = data.address || '';
+        } else if (response.status === 401) {
+            localStorage.clear();
+            window.location.href = "{% url 'login' %}";
+        }
+    } catch (error) {
+        console.error('Error:', error);
+    }
+}
+
+// Edit profile form
+document.getElementById('edit-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        first_name: document.getElementById('edit-first-name').value,
+        last_name: document.getElementById('edit-last-name').value,
+        phone: document.getElementById('edit-phone').value,
+        address: document.getElementById('edit-address').value
+    };
+    
+    const errorDiv = document.getElementById('edit-error');
+    const successDiv = document.getElementById('edit-success');
+    
+    errorDiv.classList.add('d-none');
+    successDiv.classList.add('d-none');
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/profile/update/', {
+            method: 'PATCH',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            successDiv.textContent = 'Profile updated successfully!';
+            successDiv.classList.remove('d-none');
+            
+            // Update localStorage
+            localStorage.setItem('user_name', data.user.first_name);
+            
+            // Reload profile
+            setTimeout(() => {
+                loadProfile();
+                bootstrap.Modal.getInstance(document.getElementById('editModal')).hide();
+            }, 1500);
+        } else {
+            errorDiv.textContent = 'Failed to update profile';
+            errorDiv.classList.remove('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = 'An error occurred';
+        errorDiv.classList.remove('d-none');
+    }
+});
+
+// Change password form
+document.getElementById('password-form').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    
+    const formData = {
+        old_password: document.getElementById('old-password').value,
+        new_password: document.getElementById('new-password').value,
+        new_password2: document.getElementById('new-password2').value
+    };
+    
+    const errorDiv = document.getElementById('password-error');
+    const successDiv = document.getElementById('password-success');
+    
+    errorDiv.classList.add('d-none');
+    successDiv.classList.add('d-none');
+    
+    try {
+        const response = await fetch('http://127.0.0.1:8000/api/change-password/', {
+            method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(formData)
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            successDiv.textContent = 'Password changed successfully!';
+            successDiv.classList.remove('d-none');
+            
+            // Clear form
+            document.getElementById('password-form').reset();
+            
+            setTimeout(() => {
+                bootstrap.Modal.getInstance(document.getElementById('passwordModal')).hide();
+            }, 1500);
+        } else {
+            errorDiv.textContent = data.error || 'Failed to change password';
+            errorDiv.classList.remove('d-none');
+        }
+    } catch (error) {
+        errorDiv.textContent = 'An error occurred';
+        errorDiv.classList.remove('d-none');
+    }
+});
+</script>
+{% endblock %}
