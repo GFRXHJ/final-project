@@ -20,10 +20,8 @@ cd final-project
 `python manage.py runserver`
 
 
+# Testing with Swagger
 ```bash
-
-Testing with Swagger
-
 Go to http://127.0.0.1:8000/swagger/
 Register via /api/register/
 Login via /api/login/ and copy access token
